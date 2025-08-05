@@ -13,7 +13,15 @@ class LocalDataSourceImpl implements ILocalDataSource {
   SettingsModel getSettings() {
     final settingsValue = _preferences.getString('settings');
     if (settingsValue == null || settingsValue.isEmpty) {
-      return SettingsModel();
+      return SettingsModel(
+        listenApi: 'https://yindam.com.tm/ymhasap/api/v1/sms-messages/pending',
+        notifyApi:
+            'https://yindam.com.tm/ymhasap/api/v1/sms-messages/batch-update',
+        listenInterval: 30,
+        notifyServer: true,
+        sentInterval: 15,
+        apiKey: '2O5Tr6taJw7PxanYv5vxLeQHSd8ZOns6Pd82GzHgmQbppUxygk',
+      );
     }
     return SettingsModel.fromJson(
       jsonDecode(settingsValue) as Map<String, dynamic>,

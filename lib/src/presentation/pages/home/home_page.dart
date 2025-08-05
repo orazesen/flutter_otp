@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_otp/app/router/app_router.gr.dart';
 import 'package:flutter_otp/src/domain/entities/message.dart';
 import 'package:flutter_otp/src/presentation/cubits/message/message_cubit.dart';
 
@@ -24,7 +25,17 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Messenger')),
+      appBar: AppBar(
+        title: Text('Messenger'),
+        actions: [
+          IconButton(
+            onPressed: () {
+              context.router.push(SettingsRoute());
+            },
+            icon: Icon(Icons.settings),
+          ),
+        ],
+      ),
       body: BlocBuilder<MessageCubit, MessageState>(
         bloc: _messageCubit,
         builder: (context, state) {

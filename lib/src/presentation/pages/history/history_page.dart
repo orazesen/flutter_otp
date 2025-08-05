@@ -1,5 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_otp/app/router/app_router.gr.dart';
 import 'package:flutter_otp/src/domain/entities/message.dart';
 import 'package:intl/intl.dart';
 
@@ -15,7 +16,17 @@ class _HistoryPageState extends State<HistoryPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Histories')),
+      appBar: AppBar(
+        title: Text('Histories'),
+        actions: [
+          IconButton(
+            onPressed: () {
+              context.router.push(SettingsRoute());
+            },
+            icon: Icon(Icons.settings),
+          ),
+        ],
+      ),
       body: FutureBuilder<List<Message>>(
         future: loadHistory(),
         builder: (context, snapshot) {

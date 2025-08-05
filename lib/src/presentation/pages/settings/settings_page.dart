@@ -42,7 +42,7 @@ class _SettingsPageState extends State<SettingsPage> {
               listenInterval = TextEditingController(
                 text: settings.listenInterval.toString(),
               );
-              listenInterval = TextEditingController(
+              sentInterval = TextEditingController(
                 text: settings.sentInterval.toString(),
               );
               apiKeyController = TextEditingController(text: settings.apiKey);
@@ -51,7 +51,7 @@ class _SettingsPageState extends State<SettingsPage> {
               }
               hasChanged = true;
 
-              return Padding(
+              return SingleChildScrollView(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   mainAxisSize: MainAxisSize.max,
@@ -87,7 +87,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         Expanded(
                           child: TextField(
                             decoration: const InputDecoration(
-                              label: Text('Interval'),
+                              label: Text('Listen Interval'),
                               prefix: Text('In seconds:'),
                             ),
                             controller: listenInterval,
@@ -98,7 +98,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         Expanded(
                           child: TextField(
                             decoration: const InputDecoration(
-                              label: Text('Interval'),
+                              label: Text('Sent Interval'),
                               prefix: Text('In seconds:'),
                             ),
                             controller: sentInterval,

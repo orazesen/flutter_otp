@@ -23,7 +23,7 @@ class MessageCubit extends Cubit<MessageState> {
   final ISettingsRepository _settingsRepository;
 
   List<Message> _messages = [];
-  final List<Message> _sentMessages = [];
+  List<Message> _sentMessages = [];
   late Settings _settings;
   AppStatus _status = AppStatus.stopped;
 
@@ -50,6 +50,7 @@ class MessageCubit extends Cubit<MessageState> {
     if (_sentMessages.isNotEmpty && _settings.notifyServer) {
       try {
         await _messagesRepository.updateMessages(messages: _sentMessages);
+        _sentMessages = [];
       } catch (e) {
         log('$e');
         _status = AppStatus.failed;
@@ -65,13 +66,17 @@ class MessageCubit extends Cubit<MessageState> {
   }
 
   void start() async {
-    emit(_Started());
-    _resume();
+    if (_status != AppStatus.started) {
+      emit(_Started());
+      _resume();
+    }
   }
 
   void stop() async {
-    emit(_Stopped());
-    _pause();
+    if (_status != AppStatus.stopped) {
+      emit(_Stopped());
+      _pause();
+    }
   }
 
   Future<void> _sendSms(Message message) async {
@@ -115,9 +120,6 @@ class MessageCubit extends Cubit<MessageState> {
       );
       if (_status == AppStatus.started) {
         emit(_Sent());
-        await Future.delayed(Duration(milliseconds: 500));
-        emit(_Started());
-        _resume();
       }
     } catch (e) {
       emit(_Failed());
@@ -125,16 +127,20 @@ class MessageCubit extends Cubit<MessageState> {
     }
   }
 
-  void _resume() {
+  Future<void> _resume() async {
     _status = AppStatus.started;
-    if (_messages.isEmpty) {
-      _pause();
-      _refreshList();
-      return;
+
+    while (_messages.isNotEmpty && _status == AppStatus.started) {
+      final message = _messages.removeAt(0);
+      await _sendSms(message);
+      await Future.delayed(Duration(milliseconds: _settings.sentInterval));
+      emit(_Started());
     }
 
-    final message = _messages.removeAt(0);
-    _sendSms(message);
+    if (_status == AppStatus.started) {
+      _pause();
+      await _refreshList();
+    }
   }
 
   void _pause() {

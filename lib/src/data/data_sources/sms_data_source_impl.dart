@@ -22,13 +22,13 @@ class SmsDataSourceImpl implements ISmsDataSource {
     }
 
     try {
-      // await _telephony.sendSms(
-      //   to: phoneNumber,
-      //   message: content,
-      //   statusListener: statusListener,
-      // );
+      await _telephony.sendSms(
+        to: phoneNumber,
+        message: content,
+        statusListener: statusListener,
+      );
 
-      await Future.delayed(Duration(seconds: 2));
+      // await Future.delayed(Duration(seconds: 2));
 
       return true;
     } catch (e) {
