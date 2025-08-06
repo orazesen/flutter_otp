@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_otp/app/router/app_router.gr.dart';
 import 'package:flutter_otp/src/domain/entities/message.dart';
+import 'package:flutter_otp/src/presentation/cubits/history/history_cubit.dart';
 import 'package:flutter_otp/src/presentation/cubits/message/message_cubit.dart';
 
 @RoutePage()
@@ -71,6 +72,9 @@ class _HomePageState extends State<HomePage> {
                 context,
               ).showSnackBar(SnackBar(content: Text('Something went wrong!')));
             },
+            sent: (sentMessage) {
+              context.read<HistoryCubit>().addMessage(sentMessage);
+            },
           );
         },
         builder: (context, state) {
@@ -97,7 +101,7 @@ class _HomePageState extends State<HomePage> {
     final stopped = state.maybeWhen(
       orElse: () => true,
       started: () => false,
-      sent: () => false,
+      sent: (sentMessage) => false,
     );
     return Padding(
       padding: const EdgeInsets.only(bottom: 100),

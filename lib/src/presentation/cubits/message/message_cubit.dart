@@ -10,7 +10,6 @@ import 'package:flutter_otp/src/domain/types/app_status.dart';
 import 'package:flutter_otp/src/domain/types/message_status.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
-import 'package:telephony/telephony.dart';
 
 part 'message_state.dart';
 part 'message_cubit.freezed.dart';
@@ -28,35 +27,48 @@ class MessageCubit extends Cubit<MessageState> {
   AppStatus _status = AppStatus.stopped;
 
   Future<void> getMessages() async {
+    log('getMessages');
     emit(_Laoding());
 
     try {
       _messages = await _messagesRepository.getMessages();
+      log('getMessages from server');
       _settings = _settingsRepository.getSettings();
+      log('get settings from local');
 
       if (_status == AppStatus.paused) {
         emit(_Started());
-        _resume();
+        _status = AppStatus.started;
+        log('$_status');
+        _loop();
       } else if (_status == AppStatus.stopped) {
+        log('$_status');
         emit(_Loaded());
       }
     } catch (e) {
-      _status = AppStatus.failed;
+      log('$e');
       emit(_Failed());
+      stop();
     }
   }
 
   Future<void> _refreshList() async {
+    log('_refreshList');
     if (_sentMessages.isNotEmpty && _settings.notifyServer) {
       try {
+        log('updateMessages');
         await _messagesRepository.updateMessages(messages: _sentMessages);
         _sentMessages = [];
       } catch (e) {
         log('$e');
         _status = AppStatus.failed;
+        log('$_status');
         emit(_Failed());
+        stop();
+        return;
       }
     }
+    log('Wait for ${_settings.listenInterval} seconds');
     await Future.delayed(Duration(seconds: _settings.listenInterval));
     getMessages();
   }
@@ -66,89 +78,75 @@ class MessageCubit extends Cubit<MessageState> {
   }
 
   void start() async {
+    log('start');
     if (_status != AppStatus.started) {
       emit(_Started());
-      _resume();
+      _status = AppStatus.started;
+      log('$_status');
+      _loop();
     }
   }
 
   void stop() async {
+    log('stop');
     if (_status != AppStatus.stopped) {
       emit(_Stopped());
-      _pause();
+      _status = AppStatus.stopped;
+      log('$_status');
     }
   }
 
   Future<void> _sendSms(Message message) async {
     try {
-      MessageStatus msgStatus;
-      listener(SendStatus status) {
-        switch (status) {
-          case SendStatus.DELIVERED:
-            log(
-              'Delivered to ${message.phoneNumber} with message ${message.content}',
-            );
-            msgStatus = MessageStatus.delivered;
-            break;
-          case SendStatus.SENT:
-            log(
-              'Sent to ${message.phoneNumber} with message ${message.content}',
-            );
-            msgStatus = MessageStatus.sent;
-            break;
-        }
-
-        _sentMessages.add(
-          Message(
-            message.toModel(),
-            queueId: message.queueId,
-            messageId: message.messageId,
-            content: message.content,
-            phoneNumber: message.phoneNumber,
-            countryCode: message.countryCode,
-            queuedAt: message.queuedAt,
-            sentAt: DateTime.now(),
-            status: msgStatus,
-            errorMessage: '',
-          ),
-        );
-      }
-
-      await _messagesRepository.sendMessage(
-        message: message,
-        statusListener: listener,
-      );
-      if (_status == AppStatus.started) {
-        emit(_Sent());
-      }
+      log('_sendSms');
+      await _messagesRepository.sendMessage(message: message);
     } catch (e) {
+      log('$e');
       emit(_Failed());
-      _pause();
+      stop();
     }
   }
 
-  Future<void> _resume() async {
-    _status = AppStatus.started;
-
-    while (_messages.isNotEmpty && _status == AppStatus.started) {
-      final message = _messages.removeAt(0);
-      await _sendSms(message);
-      await Future.delayed(Duration(milliseconds: _settings.sentInterval));
-      emit(_Started());
+  Future<void> _loop() async {
+    log('_loop');
+    log('$_status');
+    if (_status != AppStatus.started) {
+      return;
     }
 
-    if (_status == AppStatus.started) {
-      _pause();
-      await _refreshList();
+    if (_messages.isEmpty) {
+      _status = AppStatus.paused;
+      log('$_status');
+      _refreshList();
+      return;
     }
-  }
 
-  void _pause() {
-    _status = AppStatus.paused;
+    final message = _messages.removeAt(0);
+    log('$message');
+    emit(_Sent(sentMessage: message));
+    await _sendSms(message);
+    _sentMessages.add(
+      Message(
+        null,
+        queueId: message.queueId,
+        messageId: message.messageId,
+        content: message.content,
+        phoneNumber: message.phoneNumber,
+        countryCode: message.countryCode,
+        queuedAt: message.queuedAt,
+        sentAt: DateTime.now(),
+        status: MessageStatus.sent,
+        errorMessage: '',
+      ),
+    );
+    log('$_sentMessages');
+    await Future.delayed(Duration(milliseconds: _settings.sentInterval));
+    emit(_Started());
+    _loop();
   }
 
   void dispose() {
-    _pause();
+    stop();
     _messages.clear();
   }
 }

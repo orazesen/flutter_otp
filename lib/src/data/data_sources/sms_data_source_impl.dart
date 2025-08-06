@@ -28,7 +28,7 @@ class SmsDataSourceImpl implements ISmsDataSource {
         statusListener: statusListener,
       );
 
-      // await Future.delayed(Duration(seconds: 2));
+      // await Future.delayed(Duration(seconds: 3));
 
       return true;
     } catch (e) {

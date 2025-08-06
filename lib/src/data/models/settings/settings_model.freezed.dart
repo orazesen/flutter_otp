@@ -214,7 +214,7 @@ return $default(_that.listenApi,_that.notifyApi,_that.listenInterval,_that.sentI
 @JsonSerializable()
 
 class _SettingsModel implements SettingsModel {
-   _SettingsModel({this.listenApi = '', this.notifyApi = '', this.listenInterval = 30, this.sentInterval = 15, this.notifyServer = true, this.apiKey = ''});
+   _SettingsModel({this.listenApi = 'https://yindam.com.tm/ymhasap/api/sms-messages/pending', this.notifyApi = 'https://yindam.com.tm/ymhasap/api/sms-messages/batch-update', this.listenInterval = 30, this.sentInterval = 15, this.notifyServer = true, this.apiKey = '2O5Tr6taJw7PxanYv5vxLeQHSd8ZOns6Pd82GzHgmQbppUxygk'});
   factory _SettingsModel.fromJson(Map<String, dynamic> json) => _$SettingsModelFromJson(json);
 
 @override@JsonKey() final  String listenApi;

@@ -30,6 +30,8 @@ import 'package:flutter_otp/src/domain/repositories/i_messages_repository.dart'
     as _i195;
 import 'package:flutter_otp/src/domain/repositories/i_settings_repository.dart'
     as _i776;
+import 'package:flutter_otp/src/presentation/cubits/history/history_cubit.dart'
+    as _i685;
 import 'package:flutter_otp/src/presentation/cubits/message/message_cubit.dart'
     as _i359;
 import 'package:flutter_otp/src/presentation/cubits/settings/settings_cubit.dart'
@@ -50,6 +52,7 @@ extension GetItInjectableX on _i174.GetIt {
       () => commonInjectableModule.sharedPreferences,
       preResolve: true,
     );
+    gh.factory<_i685.HistoryCubit>(() => _i685.HistoryCubit());
     gh.factory<_i37.ISmsDataSource>(() => _i836.SmsDataSourceImpl());
     gh.factory<_i83.ILocalDataSource>(
       () => _i833.LocalDataSourceImpl(gh<_i460.SharedPreferences>()),

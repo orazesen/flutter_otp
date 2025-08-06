@@ -7,6 +7,6 @@ class MessageState with _$MessageState {
   const factory MessageState.failed() = _Failed;
   const factory MessageState.loaded() = _Loaded;
   const factory MessageState.started() = _Started;
-  const factory MessageState.sent() = _Sent;
+  const factory MessageState.sent({required Message sentMessage}) = _Sent;
   const factory MessageState.stopped() = _Stopped;
 }

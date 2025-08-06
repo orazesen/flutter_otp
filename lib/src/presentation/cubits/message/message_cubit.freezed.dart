@@ -137,7 +137,7 @@ return stopped(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function()?  failed,TResult Function()?  loaded,TResult Function()?  started,TResult Function()?  sent,TResult Function()?  stopped,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function()?  failed,TResult Function()?  loaded,TResult Function()?  started,TResult Function( Message sentMessage)?  sent,TResult Function()?  stopped,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Initial() when initial != null:
 return initial();case _Laoding() when loading != null:
@@ -145,7 +145,7 @@ return loading();case _Failed() when failed != null:
 return failed();case _Loaded() when loaded != null:
 return loaded();case _Started() when started != null:
 return started();case _Sent() when sent != null:
-return sent();case _Stopped() when stopped != null:
+return sent(_that.sentMessage);case _Stopped() when stopped != null:
 return stopped();case _:
   return orElse();
 
@@ -164,7 +164,7 @@ return stopped();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function()  failed,required TResult Function()  loaded,required TResult Function()  started,required TResult Function()  sent,required TResult Function()  stopped,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function()  failed,required TResult Function()  loaded,required TResult Function()  started,required TResult Function( Message sentMessage)  sent,required TResult Function()  stopped,}) {final _that = this;
 switch (_that) {
 case _Initial():
 return initial();case _Laoding():
@@ -172,7 +172,7 @@ return loading();case _Failed():
 return failed();case _Loaded():
 return loaded();case _Started():
 return started();case _Sent():
-return sent();case _Stopped():
+return sent(_that.sentMessage);case _Stopped():
 return stopped();case _:
   throw StateError('Unexpected subclass');
 
@@ -190,7 +190,7 @@ return stopped();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function()?  failed,TResult? Function()?  loaded,TResult? Function()?  started,TResult? Function()?  sent,TResult? Function()?  stopped,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function()?  failed,TResult? Function()?  loaded,TResult? Function()?  started,TResult? Function( Message sentMessage)?  sent,TResult? Function()?  stopped,}) {final _that = this;
 switch (_that) {
 case _Initial() when initial != null:
 return initial();case _Laoding() when loading != null:
@@ -198,7 +198,7 @@ return loading();case _Failed() when failed != null:
 return failed();case _Loaded() when loaded != null:
 return loaded();case _Started() when started != null:
 return started();case _Sent() when sent != null:
-return sent();case _Stopped() when stopped != null:
+return sent(_that.sentMessage);case _Stopped() when stopped != null:
 return stopped();case _:
   return null;
 
@@ -371,33 +371,67 @@ String toString() {
 
 
 class _Sent implements MessageState {
-  const _Sent();
+  const _Sent({required this.sentMessage});
   
 
+ final  Message sentMessage;
 
-
+/// Create a copy of MessageState
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$SentCopyWith<_Sent> get copyWith => __$SentCopyWithImpl<_Sent>(this, _$identity);
 
 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Sent);
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Sent&&(identical(other.sentMessage, sentMessage) || other.sentMessage == sentMessage));
 }
 
 
 @override
-int get hashCode => runtimeType.hashCode;
+int get hashCode => Object.hash(runtimeType,sentMessage);
 
 @override
 String toString() {
-  return 'MessageState.sent()';
+  return 'MessageState.sent(sentMessage: $sentMessage)';
 }
 
 
 }
 
+/// @nodoc
+abstract mixin class _$SentCopyWith<$Res> implements $MessageStateCopyWith<$Res> {
+  factory _$SentCopyWith(_Sent value, $Res Function(_Sent) _then) = __$SentCopyWithImpl;
+@useResult
+$Res call({
+ Message sentMessage
+});
 
 
+
+
+}
+/// @nodoc
+class __$SentCopyWithImpl<$Res>
+    implements _$SentCopyWith<$Res> {
+  __$SentCopyWithImpl(this._self, this._then);
+
+  final _Sent _self;
+  final $Res Function(_Sent) _then;
+
+/// Create a copy of MessageState
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? sentMessage = null,}) {
+  return _then(_Sent(
+sentMessage: null == sentMessage ? _self.sentMessage : sentMessage // ignore: cast_nullable_to_non_nullable
+as Message,
+  ));
+}
+
+
+}
 
 /// @nodoc
 

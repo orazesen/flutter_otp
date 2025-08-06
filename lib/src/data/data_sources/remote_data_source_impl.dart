@@ -46,7 +46,7 @@ class RemoteDataSourceImpl implements IRemoteDataSource {
           "queue_id": e.queueId,
           "status": e.status,
           "error_message": e.errorMessage,
-          "sent_at": e.sentAt?.toUtc(),
+          "sent_at": e.sentAt?.toIso8601String(),
         };
       }).toList(),
     };
