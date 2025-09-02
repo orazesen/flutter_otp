@@ -55,7 +55,7 @@ extension MessageStatePatterns on MessageState {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _Initial value)?  initial,TResult Function( _Laoding value)?  loading,TResult Function( _Failed value)?  failed,TResult Function( _Loaded value)?  loaded,TResult Function( _Started value)?  started,TResult Function( _Sent value)?  sent,TResult Function( _Stopped value)?  stopped,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _Initial value)?  initial,TResult Function( _Laoding value)?  loading,TResult Function( _Failed value)?  failed,TResult Function( _Loaded value)?  loaded,TResult Function( _Started value)?  started,TResult Function( _Sent value)?  sent,TResult Function( _Sending value)?  sending,TResult Function( _Stopped value)?  stopped,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case _Initial() when initial != null:
@@ -64,7 +64,8 @@ return loading(_that);case _Failed() when failed != null:
 return failed(_that);case _Loaded() when loaded != null:
 return loaded(_that);case _Started() when started != null:
 return started(_that);case _Sent() when sent != null:
-return sent(_that);case _Stopped() when stopped != null:
+return sent(_that);case _Sending() when sending != null:
+return sending(_that);case _Stopped() when stopped != null:
 return stopped(_that);case _:
   return orElse();
 
@@ -83,7 +84,7 @@ return stopped(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _Initial value)  initial,required TResult Function( _Laoding value)  loading,required TResult Function( _Failed value)  failed,required TResult Function( _Loaded value)  loaded,required TResult Function( _Started value)  started,required TResult Function( _Sent value)  sent,required TResult Function( _Stopped value)  stopped,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _Initial value)  initial,required TResult Function( _Laoding value)  loading,required TResult Function( _Failed value)  failed,required TResult Function( _Loaded value)  loaded,required TResult Function( _Started value)  started,required TResult Function( _Sent value)  sent,required TResult Function( _Sending value)  sending,required TResult Function( _Stopped value)  stopped,}){
 final _that = this;
 switch (_that) {
 case _Initial():
@@ -92,7 +93,8 @@ return loading(_that);case _Failed():
 return failed(_that);case _Loaded():
 return loaded(_that);case _Started():
 return started(_that);case _Sent():
-return sent(_that);case _Stopped():
+return sent(_that);case _Sending():
+return sending(_that);case _Stopped():
 return stopped(_that);case _:
   throw StateError('Unexpected subclass');
 
@@ -110,7 +112,7 @@ return stopped(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _Initial value)?  initial,TResult? Function( _Laoding value)?  loading,TResult? Function( _Failed value)?  failed,TResult? Function( _Loaded value)?  loaded,TResult? Function( _Started value)?  started,TResult? Function( _Sent value)?  sent,TResult? Function( _Stopped value)?  stopped,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _Initial value)?  initial,TResult? Function( _Laoding value)?  loading,TResult? Function( _Failed value)?  failed,TResult? Function( _Loaded value)?  loaded,TResult? Function( _Started value)?  started,TResult? Function( _Sent value)?  sent,TResult? Function( _Sending value)?  sending,TResult? Function( _Stopped value)?  stopped,}){
 final _that = this;
 switch (_that) {
 case _Initial() when initial != null:
@@ -119,7 +121,8 @@ return loading(_that);case _Failed() when failed != null:
 return failed(_that);case _Loaded() when loaded != null:
 return loaded(_that);case _Started() when started != null:
 return started(_that);case _Sent() when sent != null:
-return sent(_that);case _Stopped() when stopped != null:
+return sent(_that);case _Sending() when sending != null:
+return sending(_that);case _Stopped() when stopped != null:
 return stopped(_that);case _:
   return null;
 
@@ -137,15 +140,16 @@ return stopped(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function()?  failed,TResult Function()?  loaded,TResult Function()?  started,TResult Function( Message sentMessage)?  sent,TResult Function()?  stopped,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function( String message)?  failed,TResult Function()?  loaded,TResult Function()?  started,TResult Function( Message sentMessage)?  sent,TResult Function()?  sending,TResult Function()?  stopped,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Initial() when initial != null:
 return initial();case _Laoding() when loading != null:
 return loading();case _Failed() when failed != null:
-return failed();case _Loaded() when loaded != null:
+return failed(_that.message);case _Loaded() when loaded != null:
 return loaded();case _Started() when started != null:
 return started();case _Sent() when sent != null:
-return sent(_that.sentMessage);case _Stopped() when stopped != null:
+return sent(_that.sentMessage);case _Sending() when sending != null:
+return sending();case _Stopped() when stopped != null:
 return stopped();case _:
   return orElse();
 
@@ -164,15 +168,16 @@ return stopped();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function()  failed,required TResult Function()  loaded,required TResult Function()  started,required TResult Function( Message sentMessage)  sent,required TResult Function()  stopped,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function( String message)  failed,required TResult Function()  loaded,required TResult Function()  started,required TResult Function( Message sentMessage)  sent,required TResult Function()  sending,required TResult Function()  stopped,}) {final _that = this;
 switch (_that) {
 case _Initial():
 return initial();case _Laoding():
 return loading();case _Failed():
-return failed();case _Loaded():
+return failed(_that.message);case _Loaded():
 return loaded();case _Started():
 return started();case _Sent():
-return sent(_that.sentMessage);case _Stopped():
+return sent(_that.sentMessage);case _Sending():
+return sending();case _Stopped():
 return stopped();case _:
   throw StateError('Unexpected subclass');
 
@@ -190,15 +195,16 @@ return stopped();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function()?  failed,TResult? Function()?  loaded,TResult? Function()?  started,TResult? Function( Message sentMessage)?  sent,TResult? Function()?  stopped,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function( String message)?  failed,TResult? Function()?  loaded,TResult? Function()?  started,TResult? Function( Message sentMessage)?  sent,TResult? Function()?  sending,TResult? Function()?  stopped,}) {final _that = this;
 switch (_that) {
 case _Initial() when initial != null:
 return initial();case _Laoding() when loading != null:
 return loading();case _Failed() when failed != null:
-return failed();case _Loaded() when loaded != null:
+return failed(_that.message);case _Loaded() when loaded != null:
 return loaded();case _Started() when started != null:
 return started();case _Sent() when sent != null:
-return sent(_that.sentMessage);case _Stopped() when stopped != null:
+return sent(_that.sentMessage);case _Sending() when sending != null:
+return sending();case _Stopped() when stopped != null:
 return stopped();case _:
   return null;
 
@@ -275,33 +281,67 @@ String toString() {
 
 
 class _Failed implements MessageState {
-  const _Failed();
+  const _Failed({required this.message});
   
 
+ final  String message;
 
-
+/// Create a copy of MessageState
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$FailedCopyWith<_Failed> get copyWith => __$FailedCopyWithImpl<_Failed>(this, _$identity);
 
 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Failed);
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Failed&&(identical(other.message, message) || other.message == message));
 }
 
 
 @override
-int get hashCode => runtimeType.hashCode;
+int get hashCode => Object.hash(runtimeType,message);
 
 @override
 String toString() {
-  return 'MessageState.failed()';
+  return 'MessageState.failed(message: $message)';
 }
 
 
 }
 
+/// @nodoc
+abstract mixin class _$FailedCopyWith<$Res> implements $MessageStateCopyWith<$Res> {
+  factory _$FailedCopyWith(_Failed value, $Res Function(_Failed) _then) = __$FailedCopyWithImpl;
+@useResult
+$Res call({
+ String message
+});
 
 
+
+
+}
+/// @nodoc
+class __$FailedCopyWithImpl<$Res>
+    implements _$FailedCopyWith<$Res> {
+  __$FailedCopyWithImpl(this._self, this._then);
+
+  final _Failed _self;
+  final $Res Function(_Failed) _then;
+
+/// Create a copy of MessageState
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? message = null,}) {
+  return _then(_Failed(
+message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
+}
 
 /// @nodoc
 
@@ -432,6 +472,38 @@ as Message,
 
 
 }
+
+/// @nodoc
+
+
+class _Sending implements MessageState {
+  const _Sending();
+  
+
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Sending);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+  return 'MessageState.sending()';
+}
+
+
+}
+
+
+
 
 /// @nodoc
 

@@ -5,6 +5,7 @@ import 'package:flutter_otp/app/router/app_router.gr.dart';
 import 'package:flutter_otp/src/domain/entities/message.dart';
 import 'package:flutter_otp/src/domain/types/message_status.dart';
 import 'package:flutter_otp/src/presentation/cubits/history/history_cubit.dart';
+import 'package:flutter_otp/src/presentation/widgets/app_app_bar.dart';
 import 'package:intl/intl.dart';
 
 @RoutePage()
@@ -19,17 +20,7 @@ class _HistoryPageState extends State<HistoryPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Histories'),
-        actions: [
-          IconButton(
-            onPressed: () {
-              context.router.push(SettingsRoute());
-            },
-            icon: Icon(Icons.settings),
-          ),
-        ],
-      ),
+      appBar: AppAppBar(title: 'Histories'),
       body: BlocBuilder<HistoryCubit, HistoryState>(
         builder: (context, state) {
           return state.maybeWhen(
@@ -38,6 +29,9 @@ class _HistoryPageState extends State<HistoryPage> {
             },
             failed: () {
               return const Center(child: Text("Something went wrong!"));
+            },
+            initial: () {
+              return const Center(child: Text("List is empty"));
             },
             loaded: (messages) {
               if (messages.isEmpty) {
@@ -56,25 +50,19 @@ class _HistoryPageState extends State<HistoryPage> {
                           backgroundColor: Colors.grey.withValues(alpha: 0.3),
                           child: const Icon(Icons.message_outlined),
                         ),
-                        title: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              messages[index].phoneNumber,
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            const SizedBox(height: 6),
-                            Text(
-                              messages[index].content,
-                              style: const TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w300,
-                              ),
-                            ),
-                          ],
+                        title: Text(
+                          messages[index].phoneNumber,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        subtitle: Text(
+                          messages[index].content,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w300,
+                          ),
                         ),
                         trailing: Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
@@ -85,9 +73,6 @@ class _HistoryPageState extends State<HistoryPage> {
                               DateFormat(
                                 'HH:mm dd/MM/yyyy',
                               ).format(messages[index].sentAt),
-                              // style: TextStyle(
-                              //   color: color(messages[index]),
-                              // ),
                             ),
                             const SizedBox(height: 6),
                             Container(
@@ -100,6 +85,11 @@ class _HistoryPageState extends State<HistoryPage> {
                             ),
                           ],
                         ),
+                        onTap: () {
+                          context.router.push(
+                            MessageDetailRoute(message: messages[index]),
+                          );
+                        },
                       );
                     },
                     separatorBuilder: (context, index) => const Divider(),
@@ -122,6 +112,9 @@ class _HistoryPageState extends State<HistoryPage> {
         break;
       case MessageStatus.sent:
         status = 'sent';
+        break;
+      case MessageStatus.failed:
+        status = 'failed';
         break;
       default:
     }

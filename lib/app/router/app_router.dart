@@ -16,12 +16,18 @@ class AppRouter extends RootStackRouter {
           path: 'home',
           page: EmptyShellRoute('HomeTap').page,
           initial: true,
-          children: [AutoRoute(path: '', page: HomeRoute.page)],
+          children: [
+            AutoRoute(path: '', page: HomeRoute.page),
+            AutoRoute(path: 'details', page: MessageDetailRoute.page),
+          ],
         ),
         AutoRoute(
           path: 'histories',
           page: EmptyShellRoute('HistoriesTab').page,
-          children: [AutoRoute(path: '', page: HistoryRoute.page)],
+          children: [
+            AutoRoute(path: '', page: HistoryRoute.page),
+            AutoRoute(path: 'details', page: MessageDetailRoute.page),
+          ],
         ),
       ],
     ),

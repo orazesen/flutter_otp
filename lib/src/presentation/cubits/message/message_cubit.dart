@@ -10,6 +10,7 @@ import 'package:flutter_otp/src/domain/types/app_status.dart';
 import 'package:flutter_otp/src/domain/types/message_status.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
+import 'package:telephony/telephony.dart';
 
 part 'message_state.dart';
 part 'message_cubit.freezed.dart';
@@ -47,7 +48,7 @@ class MessageCubit extends Cubit<MessageState> {
       }
     } catch (e) {
       log('$e');
-      emit(_Failed());
+      emit(_Failed(message: '$e'));
       stop();
     }
   }
@@ -63,7 +64,7 @@ class MessageCubit extends Cubit<MessageState> {
         log('$e');
         _status = AppStatus.failed;
         log('$_status');
-        emit(_Failed());
+        emit(_Failed(message: '$e'));
         stop();
         return;
       }
@@ -96,21 +97,11 @@ class MessageCubit extends Cubit<MessageState> {
     }
   }
 
-  Future<void> _sendSms(Message message) async {
-    try {
-      log('_sendSms');
-      await _messagesRepository.sendMessage(message: message);
-    } catch (e) {
-      log('$e');
-      emit(_Failed());
-      stop();
-    }
-  }
-
   Future<void> _loop() async {
     log('_loop');
     log('$_status');
     if (_status != AppStatus.started) {
+      emit(_Stopped());
       return;
     }
 
@@ -121,12 +112,75 @@ class MessageCubit extends Cubit<MessageState> {
       return;
     }
 
+    emit(_Sending());
+
     final message = _messages.removeAt(0);
     log('$message');
-    emit(_Sent(sentMessage: message));
-    await _sendSms(message);
-    _sentMessages.add(
-      Message(
+
+    listener(SendStatus status) {
+      switch (status) {
+        case SendStatus.DELIVERED:
+          final sentMessage = Message(
+            null,
+            queueId: message.queueId,
+            messageId: message.messageId,
+            content: message.content,
+            phoneNumber: message.phoneNumber,
+            countryCode: message.countryCode,
+            queuedAt: message.queuedAt,
+            sentAt: DateTime.now(),
+            status: MessageStatus.sent,
+            errorMessage: '',
+          );
+          emit(_Sent(sentMessage: sentMessage));
+          _sentMessages.add(sentMessage);
+          break;
+        case SendStatus.SENT:
+          final sentMessage = Message(
+            null,
+            queueId: message.queueId,
+            messageId: message.messageId,
+            content: message.content,
+            phoneNumber: message.phoneNumber,
+            countryCode: message.countryCode,
+            queuedAt: message.queuedAt,
+            sentAt: DateTime.now(),
+            status: MessageStatus.sent,
+            errorMessage: '',
+          );
+          emit(_Sent(sentMessage: sentMessage));
+          _sentMessages.add(sentMessage);
+          break;
+      }
+    }
+
+    try {
+      log('_sendSms');
+      final result = await _messagesRepository.sendMessage(
+        message: message,
+        statusListener: listener,
+      );
+
+      if (result == false) {
+        final sentMessage = Message(
+          null,
+          queueId: message.queueId,
+          messageId: message.messageId,
+          content: message.content,
+          phoneNumber: message.phoneNumber,
+          countryCode: message.countryCode,
+          queuedAt: message.queuedAt,
+          sentAt: DateTime.now(),
+          status: MessageStatus.failed,
+          errorMessage: '',
+        );
+        _sentMessages.add(sentMessage);
+        emit(_Sent(sentMessage: sentMessage));
+      }
+    } catch (e) {
+      log('$e');
+      emit(_Failed(message: '$e'));
+      final sentMessage = Message(
         null,
         queueId: message.queueId,
         messageId: message.messageId,
@@ -135,12 +189,16 @@ class MessageCubit extends Cubit<MessageState> {
         countryCode: message.countryCode,
         queuedAt: message.queuedAt,
         sentAt: DateTime.now(),
-        status: MessageStatus.sent,
+        status: MessageStatus.failed,
         errorMessage: '',
-      ),
-    );
+      );
+      _sentMessages.add(sentMessage);
+      emit(_Sent(sentMessage: sentMessage));
+      // stop();
+    }
+
     log('$_sentMessages');
-    await Future.delayed(Duration(milliseconds: _settings.sentInterval));
+    await Future.delayed(Duration(seconds: _settings.sentInterval));
     emit(_Started());
     _loop();
   }

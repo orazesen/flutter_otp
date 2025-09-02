@@ -5,6 +5,7 @@ import 'package:flutter_otp/app/router/app_router.gr.dart';
 import 'package:flutter_otp/src/domain/entities/message.dart';
 import 'package:flutter_otp/src/presentation/cubits/history/history_cubit.dart';
 import 'package:flutter_otp/src/presentation/cubits/message/message_cubit.dart';
+import 'package:flutter_otp/src/presentation/widgets/app_app_bar.dart';
 
 @RoutePage()
 class HomePage extends StatefulWidget {
@@ -26,19 +27,23 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Messenger'),
-        actions: [
-          IconButton(
-            onPressed: () {
-              context.router.push(SettingsRoute());
-            },
-            icon: Icon(Icons.settings),
-          ),
-        ],
-      ),
-      body: BlocBuilder<MessageCubit, MessageState>(
+      appBar: AppAppBar(title: 'Messenger'),
+      body: BlocConsumer<MessageCubit, MessageState>(
         bloc: _messageCubit,
+        listener: (context, state) {
+          state.maybeWhen(
+            orElse: () {},
+            failed: (message) {
+              ScaffoldMessenger.of(context).clearSnackBars();
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(message)));
+            },
+            sent: (sentMessage) {
+              context.read<HistoryCubit>().addMessage(sentMessage);
+            },
+          );
+        },
         builder: (context, state) {
           return state.maybeWhen(
             loading: () {
@@ -47,8 +52,8 @@ class _HomePageState extends State<HomePage> {
             initial: () {
               return const Center(child: CircularProgressIndicator());
             },
-            failed: () {
-              return SizedBox.shrink();
+            failed: (message) {
+              return Center(child: Text(message));
             },
             orElse: () {
               final messages = _messageCubit.messages;
@@ -59,69 +64,6 @@ class _HomePageState extends State<HomePage> {
               }
             },
           );
-        },
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: BlocConsumer<MessageCubit, MessageState>(
-        bloc: _messageCubit,
-        listener: (context, state) {
-          state.maybeWhen(
-            orElse: () {},
-            failed: () {
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(SnackBar(content: Text('Something went wrong!')));
-            },
-            sent: (sentMessage) {
-              context.read<HistoryCubit>().addMessage(sentMessage);
-            },
-          );
-        },
-        builder: (context, state) {
-          return state.maybeWhen(
-            loading: () {
-              return SizedBox.shrink();
-            },
-            initial: () {
-              return SizedBox.shrink();
-            },
-            orElse: () {
-              return floatingButton(state);
-            },
-            failed: () {
-              return floatingButton(state);
-            },
-          );
-        },
-      ),
-    );
-  }
-
-  Widget floatingButton(MessageState state) {
-    final stopped = state.maybeWhen(
-      orElse: () => true,
-      started: () => false,
-      sent: (sentMessage) => false,
-    );
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 100),
-      child: IconButton(
-        icon: Icon(stopped ? Icons.play_arrow : Icons.pause),
-        style: ButtonStyle(
-          fixedSize: WidgetStatePropertyAll(Size(60, 60)),
-          backgroundColor: WidgetStatePropertyAll(
-            Theme.of(context).primaryColor,
-          ),
-          foregroundColor: WidgetStatePropertyAll(
-            Theme.of(context).colorScheme.onPrimary,
-          ),
-        ),
-        onPressed: () {
-          if (stopped) {
-            _messageCubit.start();
-          } else {
-            _messageCubit.stop();
-          }
         },
       ),
     );
@@ -162,6 +104,9 @@ class _HomePageState extends State<HomePage> {
             index == 0 ? 'Sending' : 'Waiting',
             style: TextStyle(color: index == 0 ? Colors.green : Colors.amber),
           ),
+          onTap: () {
+            context.router.push(MessageDetailRoute(message: messages[index]));
+          },
         );
       },
       separatorBuilder: (context, index) => const Divider(),
